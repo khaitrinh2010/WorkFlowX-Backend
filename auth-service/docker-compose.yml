@@ -1,0 +1,96 @@
+version: "3.9"
+
+services:
+  auth-service:
+    image: auth-service:latest
+    container_name: auth-service
+    ports:
+      - "8083:8083"
+    environment:
+      SPRING_APPLICATION_NAME: auth-service
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_ID: 2243604493-cufgc1kacc4bl6ave8b0vn7tnqqjvhaf.apps.googleusercontent.com
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_CLIENT_SECRET: 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
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_SCOPE: email,profile
+      SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GOOGLE_REDIRECT_URI: http://localhost:8083/login/oauth2/code/google
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_GOOGLE_AUTHORIZATION_URI: https://accounts.google.com/o/oauth2/auth
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_GOOGLE_TOKEN_URI: https://oauth2.googleapis.com/token
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_GOOGLE_USER_INFO_URI: https://openidconnect.googleapis.com/v1/userinfo
+      SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_GOOGLE_USER_NAME_ATTRIBUTE: sub
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=WorkFlowX;trustServerCertificate=true;encrypt=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: Khai@201005
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.SQLServerDialect
+      EUREKA_CLIENT_ENABLED: "true"
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "true"
+      EUREKA_CLIENT_FETCH_REGISTRY: "true"
+      EUREKA_CLIENT_SERVICE_URL_DEFAULT_ZONE: http://localhost:8761/eureka/
+      EUREKA_INSTANCE_HOSTNAME: "auth-service"
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: "true"
+      EUREKA_INSTANCE_INSTANCE_ID: "auth-service-8083"
+      EUREKA_INSTANCE_LEASE_RENEWAL_INTERVAL_IN_SECONDS: "5"
+      EUREKA_INSTANCE_LEASE_EXPIRATION_DURATION_IN_SECONDS: "10"
+    depends_on:
+      - mssql
+      - eureka-server
+    networks:
+      - app-network
+
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: mssql
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: Khai@201005
+      MSSQL_PID: Express
+    networks:
+      - app-network
+
+  study-material-service:
+    image: study-material-service:latest
+    container_name: study-material-service
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_APPLICATION_NAME: study-material-service
+      SPRING_DATASOURCE_URL: jdbc:sqlserver://mssql:1433;databaseName=WorkFlowX;trustServerCertificate=true;encrypt=true
+      SPRING_DATASOURCE_USERNAME: sa
+      SPRING_DATASOURCE_PASSWORD: Khai@201005
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "true"
+      SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.SQLServerDialect
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: admin
+      MINIO_SECRET_KEY: password
+      MINIO_BUCKET_NAME: study-materials
+
+    networks:
+      - app-network
+
+  eureka-server:
+    image: eureka-server:latest
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    environment:
+        SPRING_APPLICATION_NAME: eureka-server
+    networks:
+      - app-network
+
+  gateway-server:
+    image: gateway-server:latest
+    container_name: gateway-server
+    ports:
+      - "9000:9000"
+    networks:
+      - app-network
+    depends_on:
+      - auth-service
+networks:
+  app-network:
+    driver: bridge
