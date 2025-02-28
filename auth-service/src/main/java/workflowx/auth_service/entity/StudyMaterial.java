@@ -35,6 +35,10 @@ public class StudyMaterial {
     @Column(name = "topics", columnDefinition = "VARCHAR(MAX)")
     private String topics;
 
+    @ManyToOne
+    @JoinColumn(name = "team_id", nullable = true)
+    private StudyGroup team;
+
 
     @Column(name = "uploaded_at")
     private LocalDateTime uploadedAt;

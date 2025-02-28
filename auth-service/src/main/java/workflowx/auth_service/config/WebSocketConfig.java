@@ -21,7 +21,9 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         //Connect to this url to establish a WebSocket connection
         //Allow all origins to connect
         //Use SockJS to allow fallback options for browsers that do not support WebSocket
-        registry.addEndpoint("/ws").setAllowedOrigins("*").withSockJS();
+        registry.addEndpoint("/ws") // WebSocket endpoint
+                .setAllowedOriginPatterns("http://localhost:3000") // Allow only frontend origin
+                .withSockJS();
     }
 
     @Override
