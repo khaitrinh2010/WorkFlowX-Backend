@@ -3,9 +3,11 @@ package workflowx.auth_service.service;
 import lombok.RequiredArgsConstructor;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import workflowx.auth_service.entity.StudyGroup;
 import workflowx.auth_service.entity.StudyMaterial;
 import workflowx.auth_service.repository.StudyMaterialRepository;
 
@@ -20,7 +22,10 @@ public class StudyMaterialService {
     private final MinIOService minIOService;
     private final AIService aiService;
 
-    public StudyMaterial uploadStudyMaterial(String title, String description, MultipartFile file) {
+    @Autowired
+    private final StudyGroupService studyGroupService;
+
+    public StudyMaterial uploadStudyMaterial(String title, String description, MultipartFile file, Long teamId) {
         try {
             String fileUrl = minIOService.uploadFile(file);
             String extractedText = "";
@@ -34,6 +39,10 @@ public class StudyMaterialService {
             studyMaterial.setTitle(title);
             studyMaterial.setDescription(description);
             studyMaterial.setFileUrl(fileUrl);
+            StudyGroup studyGroup = studyGroupService.getGroupById(teamId);
+            if (studyGroup != null){
+                studyMaterial.setTeam(studyGroup);
+            }
             studyMaterial.setExtractedText(extractedText);
             studyMaterial.setUploadedAt(LocalDateTime.now());
             studyMaterial.setSummary(summary);
@@ -67,6 +76,10 @@ public class StudyMaterialService {
 
     public List<StudyMaterial> getAllStudyMaterials() {
         return studyMaterialRepository.findAll();
+    }
+
+    public List<StudyMaterial> getStudyMaterialsByTeam(Long teamId) {
+        return studyMaterialRepository.findByTeam_Id(teamId);
     }
 
 }

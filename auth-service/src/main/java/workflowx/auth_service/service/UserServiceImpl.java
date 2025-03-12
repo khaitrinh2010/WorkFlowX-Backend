@@ -2,6 +2,7 @@ package workflowx.auth_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import workflowx.auth_service.dto.UserDto;
 import workflowx.auth_service.entity.User;
 import workflowx.auth_service.mapper.UserMapper;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public UserDto getUser(Long id) {
         return userMapper.toDto(userRepository.findById(id).get());
     }
@@ -46,6 +48,7 @@ public class UserServiceImpl implements UserService {
         }
         return resultList;
     }
+
     @Override
     public UserDto getUserByEmail(String email) {
         return userMapper.toDto(userRepository.findByEmail(email));

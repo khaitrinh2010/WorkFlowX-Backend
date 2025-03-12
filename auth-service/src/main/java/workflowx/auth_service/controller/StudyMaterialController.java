@@ -26,9 +26,10 @@ public class StudyMaterialController {
     public ResponseEntity<?> uploadStudyMaterial(
             @RequestParam("title") String title,
             @RequestParam("description") String description,
-            @RequestParam("file") MultipartFile file) {
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("teamId") Long teamId){
         try {
-            StudyMaterial studyMaterial = studyMaterialService.uploadStudyMaterial(title, description, file);
+            StudyMaterial studyMaterial = studyMaterialService.uploadStudyMaterial(title, description, file, teamId);
             return ResponseEntity.ok(studyMaterial);
         } catch (Exception e) {
             e.printStackTrace();
@@ -41,6 +42,18 @@ public class StudyMaterialController {
     public ResponseEntity<?> getSummary() {
         try {
             List<StudyMaterial> result = studyMaterialService.getAllStudyMaterials();
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching summary");
+        }
+    }
+
+    @GetMapping("/team/{id}")
+    public ResponseEntity<?> getByTeam(@PathVariable Long id) {
+        try {
+            List<StudyMaterial> result = studyMaterialService.getStudyMaterialsByTeam(id);
             return ResponseEntity.ok(result);
         } catch (Exception e) {
             e.printStackTrace();

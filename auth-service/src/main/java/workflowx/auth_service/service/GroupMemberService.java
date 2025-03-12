@@ -11,6 +11,8 @@ import workflowx.auth_service.repository.GroupMemberRepository;
 import workflowx.auth_service.repository.StudyGroupRepository;
 import workflowx.auth_service.repository.UserRepository;
 
+import java.util.Set;
+
 @Service
 public class GroupMemberService {
 
@@ -40,7 +42,13 @@ public class GroupMemberService {
         member.setGroup(group);
         member.setUser(user);
         member.setRole(Role.STUDENT);
+        user.getGroupMemberships().add(member);
+        userRepository.save(user);
         groupMemberRepository.save(member);
+        Set<GroupMember> members = group.getMembers();
+        members.add(member);
+        group.setMembers(members);
+        studyGroupRepository.save(group);
     }
 
     // Leave a study group

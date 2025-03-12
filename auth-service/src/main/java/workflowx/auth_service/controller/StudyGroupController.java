@@ -9,8 +9,10 @@ import workflowx.auth_service.entity.StudyGroup;
 import workflowx.auth_service.service.GroupMemberService;
 import workflowx.auth_service.service.StudyGroupService;
 
+import java.util.List;
+
 @RestController
-@RequestMapping("/groups")
+@RequestMapping("api/groups")
 public class StudyGroupController {
 
     @Autowired
@@ -63,6 +65,23 @@ public class StudyGroupController {
             @RequestParam Long adminId) {
         groupMemberService.updateUserRole(groupId, userId, newRole, adminId);
         return ResponseEntity.ok("User role updated");
+    }
+
+    /**
+     * Get all groups a user is a member of
+     * @param userId, the user id
+     * @return
+     */
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<StudyGroup>> getGroupsByUser(@PathVariable Long userId) {
+        List<StudyGroup> groups = studyGroupService.getGroupsByUserId(userId);
+        return ResponseEntity.ok(groups);
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<StudyGroup>> getAllGroups() {
+        List<StudyGroup> groups = studyGroupService.getAllGroups();
+        return ResponseEntity.ok(groups);
     }
 }
 

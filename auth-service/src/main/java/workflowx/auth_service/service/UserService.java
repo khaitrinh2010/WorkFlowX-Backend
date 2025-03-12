@@ -2,6 +2,7 @@ package workflowx.auth_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import workflowx.auth_service.dto.UserDto;
+import workflowx.auth_service.entity.User;
 import workflowx.auth_service.repository.UserRepository;
 
 import java.util.List;

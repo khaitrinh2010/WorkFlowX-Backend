@@ -1,5 +1,6 @@
 package workflowx.auth_service.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import workflowx.auth_service.entity.StudyGroup;
@@ -10,6 +11,7 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "group_members")
 @Data
+@EqualsAndHashCode(exclude = {"user", "group"})
 public class GroupMember {
 
     @Id
@@ -17,12 +19,13 @@ public class GroupMember {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "group_id", nullable = false)
-    private StudyGroup group;
-
-    @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "study_group_id", nullable = false)
+    @JsonIgnore
+    private StudyGroup group;
 
     @Enumerated(EnumType.STRING)
     private Role role = Role.STUDENT; // STUDENT or ADMIN

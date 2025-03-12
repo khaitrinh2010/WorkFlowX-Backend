@@ -2,13 +2,15 @@ package workflowx.auth_service.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import workflowx.auth_service.entity.GroupMember;
-import workflowx.auth_service.entity.Role;
-import workflowx.auth_service.entity.StudyGroup;
-import workflowx.auth_service.entity.User;
+import workflowx.auth_service.entity.*;
 import workflowx.auth_service.repository.StudyGroupRepository;
 import workflowx.auth_service.repository.UserRepository;
 import workflowx.auth_service.repository.GroupMemberRepository;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Service
 public class StudyGroupService {
@@ -29,14 +31,25 @@ public class StudyGroupService {
         StudyGroup group = new StudyGroup();
         group.setName(name);
         group.setCreatedBy(createdBy);
-        studyGroupRepository.save(group);
+        Set<GroupMember> members = new HashSet<>();
         GroupMember member = new GroupMember();
         member.setGroup(group);
         member.setUser(createdBy);
         member.setRole(Role.ADMIN);
+        createdBy.getGroupMemberships().add(member);
+        members.add(member);
+        group.setMembers(members);
+        List<ChatMessage> messages = new ArrayList<>();
+        group.setMessages(messages);
+        studyGroupRepository.save(group);
         groupMemberRepository.save(member);
-
         return group;
+    }
+
+
+
+    public List<StudyGroup> getAllGroups() {
+        return studyGroupRepository.findAll();
     }
 
     public StudyGroup getGroupById(Long groupId) {
@@ -56,6 +69,21 @@ public class StudyGroupService {
 
         groupMemberRepository.deleteByGroupId(groupId);
         studyGroupRepository.delete(group);
+    }
+
+    public List<StudyGroup> getGroupsByUserId(Long userId) {
+        List<StudyGroup> result = new ArrayList<>();
+        List<StudyGroup> allGroups = studyGroupRepository.findAll();
+        for (StudyGroup group : allGroups) {
+            Set<GroupMember> members = group.getMembers();
+            for (GroupMember member : members) {
+                if (member.getUser().getId().equals(userId)) {
+                    result.add(group);
+                    break;
+                }
+            }
+        }
+        return result;
     }
 }
 
